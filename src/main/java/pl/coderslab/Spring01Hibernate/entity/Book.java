@@ -2,6 +2,8 @@ package pl.coderslab.Spring01Hibernate.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "books")
 public class Book {
@@ -11,6 +13,16 @@ public class Book {
     private String title;
     private int rating;
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+    @ManyToMany
+    @JoinTable(name = "book_publisher",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "publisher_id"))
+    private List<Publisher> publishers;
 
     public long getId() {
         return id;
@@ -44,6 +56,22 @@ public class Book {
         this.description = description;
     }
 
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    public List<Publisher> getPublishers() {
+        return publishers;
+    }
+
+    public void setPublishers(List<Publisher> publishers) {
+        this.publishers = publishers;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
@@ -51,6 +79,8 @@ public class Book {
                 ", title='" + title + '\'' +
                 ", rating=" + rating +
                 ", description='" + description + '\'' +
+                ", author=" + author +
+                ", publishers=" + publishers +
                 '}';
     }
 }
