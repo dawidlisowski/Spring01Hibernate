@@ -1,6 +1,5 @@
 package pl.coderslab.Spring01Hibernate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,59 +9,68 @@ import pl.coderslab.Spring01Hibernate.dao.BookDao;
 import pl.coderslab.Spring01Hibernate.dao.PublisherDao;
 import pl.coderslab.Spring01Hibernate.entity.Author;
 import pl.coderslab.Spring01Hibernate.entity.Book;
+import pl.coderslab.Spring01Hibernate.entity.Category;
 import pl.coderslab.Spring01Hibernate.entity.Publisher;
+import pl.coderslab.Spring01Hibernate.repository.AuthorRepository;
+import pl.coderslab.Spring01Hibernate.repository.BookRepository;
+import pl.coderslab.Spring01Hibernate.repository.CategoryRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/book")
 public class BookController {
 
     private final BookDao bookDao;
-
     private final AuthorDao authorDao;
-
     private final PublisherDao publisherDao;
+    private final BookRepository bookRepository;
+    private final CategoryRepository categoryRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookController(BookDao bookDao, AuthorDao authorDao, PublisherDao publisherDao) {
+    public BookController(BookDao bookDao, AuthorDao authorDao, PublisherDao publisherDao, BookRepository bookRepository, CategoryRepository categoryRepository, AuthorRepository authorRepository) {
         this.bookDao = bookDao;
         this.authorDao = authorDao;
         this.publisherDao = publisherDao;
+        this.bookRepository = bookRepository;
+        this.categoryRepository = categoryRepository;
+        this.authorRepository = authorRepository;
     }
 
-    @GetMapping("/book/authorBooks/{id}")
+    @GetMapping("/authorBooks/{id}")
     public String findBooksByAuthor(@PathVariable Long id) {
         Author author = authorDao.findById(id);
         List<Book> books = bookDao.findAllByAuthor(author);
         return books.toString();
     }
 
-    @GetMapping("/book/publisherBooks/{id}")
+    @GetMapping("/publisherBooks/{id}")
     public String findBooksByPublisher(@PathVariable Long id) {
         Publisher publisher = publisherDao.findById(id);
         List<Book> books = bookDao.findAllByPublisher(publisher);
         return books.toString();
     }
 
-    @GetMapping("/book/havePublisher")
+    @GetMapping("/havePublisher")
     public String findBooksWithPublisher() {
         List<Book> books = bookDao.findBooksWithPublisher();
         return books.toString();
     }
 
-    @GetMapping("/book/all")
+    @GetMapping("/all")
     public String findAllBooks() {
-        List<Book> books = bookDao.findAll();
+        List<Book> books = bookRepository.findAll();
         return books.toString();
     }
 
-    @GetMapping("/book/rating/{rating}")
-    public String findBooksByRating(@PathVariable int rating) {
-        List<Book> books = bookDao.findAllByRating(rating);
+    @GetMapping("/rating/{min}/{max}")
+    public String findBooksByRating(@PathVariable int min, @PathVariable int max) {
+        List<Book> books = bookRepository.findByRatingBetween(min, max);
         return books.toString();
     }
 
-    @RequestMapping("/book/add/{title}/{description}/{rating}/{firstName}/{lastName}")
+    @RequestMapping("/add/{title}/{description}/{rating}/{firstName}/{lastName}")
     public String addBook(@PathVariable String title,
                           @PathVariable String description,
                           @PathVariable int rating,
@@ -88,23 +96,47 @@ public class BookController {
         return "success " + book.getTitle() + " id: " + book.getId();
     }
 
-    @RequestMapping("/book/get/{id}")
-    public String getBook(@PathVariable Long id){
+    @RequestMapping("/get/{id}")
+    public String getBookById(@PathVariable Long id) {
         Book book = bookDao.findById(id);
         return book.toString();
     }
 
-    @RequestMapping("/book/update/{id}/{description}")
+    @GetMapping("/get/{title}")
+    public String getBookByTitle(@PathVariable String title) {
+        Book book = bookRepository.findByTitle(title);
+        return book.toString();
+    }
+
+    @GetMapping("/category/{categoryName}")
+    public String getBooksByCategory(@PathVariable String categoryName) {
+        Category category = categoryRepository.findByName(categoryName);
+        return bookRepository.findByCategory(category).toString();
+    }
+
+    @GetMapping("/single/category/{categoryName}")
+    public String getBookByCategoryOrderByTitle(@PathVariable String categoryName) {
+        Category category = categoryRepository.findByName(categoryName);
+        return bookRepository.findFirstByCategoryOrderByTitle(category).toString();
+    }
+
+    @GetMapping("/author/{lastName}")
+    public String getBookByAuthor(@PathVariable String lastName) {
+        Author author = authorRepository.findByLastName(lastName);
+        return bookRepository.findByAuthor(author).toString();
+    }
+
+    @RequestMapping("/update/{id}/{description}")
     public String updateBook(@PathVariable Long id,
-                             @PathVariable String description){
+                             @PathVariable String description) {
         Book book = bookDao.findById(id);
         book.setDescription(description);
         bookDao.update(book);
         return book.toString();
     }
 
-    @RequestMapping("/book/delete/{id}")
-    public String deleteBook(@PathVariable Long id){
+    @RequestMapping("/delete/{id}")
+    public String deleteBook(@PathVariable Long id) {
         Book book = bookDao.findById(id);
         bookDao.delete(book);
         return "success";

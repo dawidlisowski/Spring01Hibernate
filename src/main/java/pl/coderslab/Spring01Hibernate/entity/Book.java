@@ -24,6 +24,11 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "publisher_id"))
     private List<Publisher> publishers;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+
     public long getId() {
         return id;
     }
@@ -74,13 +79,26 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", rating=" + rating +
-                ", description='" + description + '\'' +
-                ", author=" + author +
-                ", publishers=" + publishers +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n📚 Book ID: ").append(id)
+                .append("\n   Title: ").append(title)
+                .append("\n   Rating: ").append(rating)
+                .append("\n   Description: ").append(description)
+                .append("\n   Author: ").append(
+                        author != null ? author.getFirstName() + " " + author.getLastName() : "N/A")
+                .append("\n   Category: ").append(
+                        category != null ? category.getName() : "N/A")
+                .append("\n   Publishers: ");
+
+        if (publishers != null && !publishers.isEmpty()) {
+            for (Publisher p : publishers) {
+                sb.append("\n     - ").append(p.getName());
+            }
+        } else {
+            sb.append("None");
+        }
+
+        return sb.toString();
     }
+
 }

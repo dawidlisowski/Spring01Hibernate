@@ -54,7 +54,7 @@ public class BookDao {
     }
 
     public List<Book> findAllByAuthor(Author author) {
-        return entityManager.createQuery("SELECT b FROM Book b JOIN FETCH b.author WHERE :author MEMBER OF b.author")
+        return entityManager.createQuery("SELECT b FROM Book b JOIN FETCH b.author WHERE b.author = :author")
                 .setParameter("author", author).getResultList();
     }
 }

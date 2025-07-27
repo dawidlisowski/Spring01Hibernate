@@ -10,6 +10,7 @@ public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Integer birthYear;
     private String firstName;
     private String lastName;
 
@@ -22,6 +23,14 @@ public class Author {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getBirthYear() {
+        return birthYear;
+    }
+
+    public void setBirthYear(Integer birthYear) {
+        this.birthYear = birthYear;
     }
 
     public String getFirstName() {
@@ -50,10 +59,8 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Author{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
+        return "\n👤 Author ID: " + id +
+                "\n   Name: " + firstName + " " + lastName;
     }
+
 }
